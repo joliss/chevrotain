@@ -1,5 +1,3 @@
-import forEach from "lodash/forEach"
-import isRegExp from "lodash/isRegExp"
 import { createToken } from "../../src/scan/tokens_public"
 import { Lexer, LexerDefinitionErrorType } from "../../src/scan/lexer_public"
 import {
@@ -729,8 +727,8 @@ function defineLexerSpecs(
             "return"
           ])
 
-          forEach(allPatterns, (currPattern) => {
-            if (isRegExp(currPattern)) {
+          allPatterns.forEach((currPattern) => {
+            if (currPattern instanceof RegExp) {
               expect(currPattern.sticky).to.be.true
             }
           })
@@ -2210,7 +2208,7 @@ function wrapWithCustom(baseExtendToken: (c: ITokenConfig) => TokenType) {
 
     const pattern = newToken.PATTERN
     if (
-      isRegExp(pattern) &&
+      pattern instanceof RegExp &&
       !/\\n|\\r|\\s/g.test(pattern.source) &&
       pattern !== Lexer.NA
     ) {
