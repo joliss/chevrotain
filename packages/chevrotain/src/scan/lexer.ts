@@ -783,10 +783,7 @@ function noMetaChar(regExp: RegExp): boolean {
     "+",
     "{"
   ]
-  // TODO JO
-  return (
-    metaChars.find((char) => regExp.source.indexOf(char) !== -1) === undefined
-  )
+  return !metaChars.some((char) => regExp.source.indexOf(char) !== -1)
 }
 
 export function addStartOfInput(pattern: RegExp): RegExp {
