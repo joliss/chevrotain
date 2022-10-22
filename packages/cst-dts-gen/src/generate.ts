@@ -1,6 +1,3 @@
-import flatten from "lodash/flatten"
-import reduce from "lodash/reduce"
-import uniq from "lodash/uniq"
 import { GenerateDtsOptions } from "@chevrotain/types"
 import {
   CstNodeTypeDefinition,
@@ -21,7 +18,7 @@ export function genDts(
   )
 
   contentParts = contentParts.concat(
-    flatten(model.map((node) => genCstNodeTypes(node)))
+    ...model.map((node) => genCstNodeTypes(node))
   )
 
   if (options.includeVisitorInterface) {
@@ -76,8 +73,8 @@ function genVisitorFunction(node: CstNodeTypeDefinition) {
 
 function buildTypeString(type: PropertyArrayType) {
   if (Array.isArray(type)) {
-    const typeNames = uniq(type.map((t) => getTypeString(t)))
-    const typeString = reduce(typeNames, (sum, t) => sum + " | " + t)
+    const typeNames = Array.from(new Set(type.map((t) => getTypeString(t))))
+    const typeString = typeNames.reduce((sum, t) => sum + " | " + t)
     return "(" + typeString + ")"
   } else {
     return getTypeString(type)
