@@ -1,8 +1,5 @@
 import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
-import first from "lodash/first"
-import isEmpty from "lodash/isEmpty"
-import compact from "lodash/compact"
 import isArray from "lodash/isArray"
 import values from "lodash/values"
 import flatten from "lodash/flatten"
@@ -353,7 +350,7 @@ export function analyzeTokenTypes(
               /* istanbul ignore if */
               // start code will only be empty given an empty regExp or failure of regexp-to-ast library
               // the first should be a different validation and the second cannot be tested.
-              if (isEmpty(optimizedCodes)) {
+              if (optimizedCodes.length === 0) {
                 // we cannot understand what codes may start possible matches
                 // The optimization correctness requires knowing start codes for ALL patterns.
                 // Not actually sure this is an error, no debug message
@@ -655,7 +652,7 @@ export function findDuplicatePatterns(
     )
   })
 
-  identicalPatterns = compact(identicalPatterns)
+  identicalPatterns = identicalPatterns.filter((currPattern) => !!currPattern)
 
   const duplicatePatterns = filter(identicalPatterns, (currIdenticalSet) => {
     return currIdenticalSet.length > 1
@@ -666,7 +663,7 @@ export function findDuplicatePatterns(
       return currType.name
     })
 
-    const dupPatternSrc = (<any>first(setOfIdentical)).PATTERN
+    const dupPatternSrc = setOfIdentical[0].PATTERN
     return {
       message:
         `The same RegExp pattern ->${dupPatternSrc}<-` +
@@ -911,7 +908,7 @@ export function performWarningRuntimeChecks(
 ): ILexerDefinitionError[] {
   const warnings = []
   let hasAnyLineBreak = false
-  const allTokenTypes = compact(flatten(values(lexerDefinition.modes)))
+  const allTokenTypes = flatten(values(lexerDefinition.modes)).filter((tokType) => !!tokType)
 
   const concreteTokenTypes = reject(
     allTokenTypes,
@@ -1160,7 +1157,7 @@ export function charCodeToOptimizedIndex(charCode: number): number {
  * TODO: Perhaps it should be lazy initialized only if a charCode > 255 is used.
  */
 function initCharCodeToOptimizedIndexMap() {
-  if (isEmpty(charCodeToOptimizedIdxMap)) {
+  if (charCodeToOptimizedIdxMap.length === 0) {
     charCodeToOptimizedIdxMap = new Array(65536)
     for (let i = 0; i < 65536; i++) {
       charCodeToOptimizedIdxMap[i] = i > 255 ? 255 + ~~(i / 255) : i
