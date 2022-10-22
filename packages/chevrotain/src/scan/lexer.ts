@@ -1,10 +1,6 @@
 import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
-import flatten from "lodash/flatten"
-import difference from "lodash/difference"
 import has from "lodash/has"
-import keys from "lodash/keys"
-import defaults from "lodash/defaults"
 import { PRINT_ERROR } from "@chevrotain/utils"
 import {
   canMatchCharCode,
@@ -68,14 +64,14 @@ export function analyzeTokenTypes(
     tracer?: (msg: string, action: () => void) => void
   }
 ): IAnalyzeResult {
-  options = defaults(options, {
+  options = {
     useSticky: SUPPORT_STICKY,
-    debug: false as boolean,
-    safeMode: false as boolean,
+    safeMode: false,
     positionTracking: "full",
     lineTerminatorCharacters: ["\r", "\n"],
-    tracer: (msg: string, action: Function) => action()
-  })
+    tracer: (msg: string, action: Function) => action(),
+    ...options
+  }
 
   const tracer = options.tracer!
 
@@ -435,7 +431,9 @@ export function findMissingPatterns(
     }
   })
 
-  const valid = difference(tokenTypes, tokenTypesWithMissingPattern)
+  const valid = tokenTypes.filter((currType) =>
+    tokenTypesWithMissingPattern.indexOf(currType) === -1
+  )
   return { errors, valid }
 }
 
@@ -464,7 +462,9 @@ export function findInvalidPatterns(
     }
   })
 
-  const valid = difference(tokenTypes, tokenTypesWithInvalidPattern)
+  const valid = tokenTypes.filter((currType) =>
+    tokenTypesWithInvalidPattern.indexOf(currType) === -1
+  )
   return { errors, valid }
 }
 
@@ -886,7 +886,8 @@ export function performWarningRuntimeChecks(
 ): ILexerDefinitionError[] {
   const warnings = []
   let hasAnyLineBreak = false
-  const allTokenTypes = flatten(Object.values(lexerDefinition.modes ?? {})).filter((tokType) => !!tokType)
+  const allTokenTypes = ([] as TokenType[]).concat(
+    ...Object.values(lexerDefinition.modes ?? {})).filter((tokType) => !!tokType)
 
   const concreteTokenTypes = allTokenTypes.filter(
     (currType) => currType[PATTERN] !== Lexer.NA
@@ -938,7 +939,7 @@ export function cloneEmptyGroups(emptyGroups: {
   [groupName: string]: IToken
 }): { [groupName: string]: IToken } {
   const clonedResult: any = {}
-  const groupKeys = keys(emptyGroups)
+  const groupKeys = Object.keys(emptyGroups)
 
   groupKeys.forEach((currKey) => {
     const currGroupValue = emptyGroups[currKey]
