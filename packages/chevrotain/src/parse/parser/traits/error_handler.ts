@@ -25,8 +25,7 @@ export class ErrorHandler {
 
   initErrorHandler(config: IParserConfig) {
     this._errors = []
-    this.errorMessageProvider =
-      (config.errorMessageProvider as IParserErrorMessageProvider) // assumes end user provides the correct config value/type
+    this.errorMessageProvider = config.errorMessageProvider
       ?? DEFAULT_PARSER_CONFIG.errorMessageProvider
   }
 

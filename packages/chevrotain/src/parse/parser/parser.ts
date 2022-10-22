@@ -271,8 +271,7 @@ export class Parser {
       )
     }
 
-    this.skipValidations =
-      (config.skipValidations as boolean) // casting assumes the end user passing the correct type
+    this.skipValidations = config.skipValidations
       ?? DEFAULT_PARSER_CONFIG.skipValidations
   }
 }
