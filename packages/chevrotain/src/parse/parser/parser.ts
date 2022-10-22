@@ -262,7 +262,7 @@ export class Parser {
     that.initGastRecorder(config)
     that.initPerformanceTracer(config)
 
-    if ((config as any).ignoredIssues !== undefined) {
+    if (config.hasOwnProperty("ignoredIssues")) {
       throw new Error(
         "The <ignoredIssues> IParserConfig property has been deprecated.\n\t" +
           "Please use the <IGNORE_AMBIGUITIES> flag on the relevant DSL method instead.\n\t" +
@@ -271,9 +271,9 @@ export class Parser {
       )
     }
 
-    this.skipValidations = config.skipValidations !== undefined
-      ? (config.skipValidations as boolean) // casting assumes the end user passing the correct type
-      : DEFAULT_PARSER_CONFIG.skipValidations
+    this.skipValidations =
+      (config.skipValidations as boolean) // casting assumes the end user passing the correct type
+      ?? DEFAULT_PARSER_CONFIG.skipValidations
   }
 }
 
