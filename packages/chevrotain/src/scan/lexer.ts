@@ -1027,8 +1027,7 @@ function checkLineBreaksIssues(
     /* istanbul ignore else */
     if (tokType.PATTERN instanceof RegExp) {
       try {
-        // TODO: why is the casting suddenly needed?
-        canMatchCharCode(lineTerminatorCharCodes, tokType.PATTERN as RegExp)
+        canMatchCharCode(lineTerminatorCharCodes, tokType.PATTERN)
       } catch (e) {
         /* istanbul ignore next - to test this we would have to mock <canMatchCharCode> to throw an error */
         return {
