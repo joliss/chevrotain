@@ -1,4 +1,3 @@
-import flatMap from "lodash/flatMap"
 import {
   IParserAmbiguousAlternativesDefinitionError,
   IParserDuplicatesDefinitionError,
@@ -38,9 +37,12 @@ import {
   IGrammarValidatorErrorMessageProvider,
   IParserDefinitionError
 } from "./types"
-import dropRight from "lodash/dropRight"
-import compact from "lodash/compact"
 import { tokenStructuredMatcher } from "../../scan/tokens"
+
+// ES2019 Array.prototype.flatMap
+function flatMap<U, R>(arr: U[], callback: (x: U, idx: number) => R[]): R[] {
+  return Array.prototype.concat.apply([], arr.map(callback))
+}
 
 export function validateLookahead(options: {
   lookaheadStrategy: ILookaheadStrategy
@@ -360,7 +362,7 @@ export function validateEmptyOrAlternative(
   const errors = flatMap<Alternation, IParserEmptyAlternativeDefinitionError>(
     ors,
     (currOr) => {
-      const exceptLast = dropRight(currOr.definition)
+      const exceptLast = currOr.definition.slice(0, -1)
       return flatMap(exceptLast, (currAlternative, currAltIdx) => {
         const possibleFirstInAlt = nextPossibleTokensAfter(
           [currAlternative],
@@ -610,7 +612,7 @@ export function checkPrefixAlternativesAmbiguities(
     return result.concat(currPathsAndIdx)
   }, [] as { idx: number; path: TokenType[] }[])
 
-  const errors = compact(
+  const errors =
     flatMap(pathsAndIndices, (currPathAndIdx) => {
       const alternativeGast = alternation.definition[currPathAndIdx.idx]
       // ignore (skip) ambiguities with this alternative
@@ -658,9 +660,8 @@ export function checkPrefixAlternativesAmbiguities(
 
       return currPathPrefixErrors
     })
-  )
 
-  return errors
+  return errors.filter((currError) => !!currError)
 }
 
 function checkTerminalAndNoneTerminalsNameSpace(
