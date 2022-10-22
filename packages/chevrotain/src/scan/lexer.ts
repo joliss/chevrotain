@@ -23,6 +23,7 @@ import {
   TokenType
 } from "@chevrotain/types"
 import { getRegExpAst } from "./reg_exp_parser"
+import forEach from "lodash/forEach"
 
 const PATTERN = "PATTERN"
 export const DEFAULT_MODE = "defaultMode"
@@ -850,7 +851,7 @@ export function performRuntimeChecks(
 
   if (has(lexerDefinition, MODES)) {
     Object.entries(lexerDefinition.modes).forEach(([currModeName, currModeValue]) => {
-      currModeValue.forEach((currTokType, currIdx) => {
+      forEach(currModeValue, (currTokType, currIdx) => {
         if (isUndefined(currTokType)) {
           errors.push({
             message:
