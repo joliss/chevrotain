@@ -58,10 +58,7 @@ export class NonTerminal
     idx?: number
   }) {
     super([])
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 
   set definition(definition: IProduction[]) {
@@ -91,10 +88,7 @@ export class Rule extends AbstractProduction {
     orgText?: string
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -106,10 +100,7 @@ export class Alternative extends AbstractProduction {
     ignoreAmbiguities?: boolean
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -126,10 +117,7 @@ export class Option
     maxLookahead?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -146,10 +134,7 @@ export class RepetitionMandatory
     maxLookahead?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -167,10 +152,7 @@ export class RepetitionMandatoryWithSeparator
     idx?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -188,10 +170,7 @@ export class Repetition
     maxLookahead?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -209,10 +188,7 @@ export class RepetitionWithSeparator
     idx?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -240,10 +216,7 @@ export class Alternation
     maxLookahead?: number
   }) {
     super(options.definition)
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 }
 
@@ -257,10 +230,7 @@ export class Terminal implements IProductionWithOccurrence {
     label?: string
     idx?: number
   }) {
-    Object.assign(
-      this,
-      options
-    )
+    Object.assign(this, options)
   }
 
   accept(visitor: IGASTVisitor): void {
