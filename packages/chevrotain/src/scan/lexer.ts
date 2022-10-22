@@ -2,9 +2,6 @@ import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
 import flatten from "lodash/flatten"
 import difference from "lodash/difference"
-import isString from "lodash/isString"
-import isFunction from "lodash/isFunction"
-import isUndefined from "lodash/isUndefined"
 import has from "lodash/has"
 import keys from "lodash/keys"
 import isRegExp from "lodash/isRegExp"
@@ -23,7 +20,6 @@ import {
   TokenType
 } from "@chevrotain/types"
 import { getRegExpAst } from "./reg_exp_parser"
-import forEach from "lodash/forEach"
 
 const PATTERN = "PATTERN"
 export const DEFAULT_MODE = "defaultMode"
@@ -147,7 +143,7 @@ export function analyzeTokenTypes(
               ? addStickyFlag(currPattern)
               : addStartOfInput(currPattern)
           }
-        } else if (isFunction(currPattern)) {
+        } else if (typeof currPattern === "function") {
           hasCustom = true
           // CustomPatternMatcherFunc - custom patterns do not require any transformations, only wrapping in a RegExp Like object
           return { exec: currPattern }
@@ -190,9 +186,9 @@ export function analyzeTokenTypes(
       /* istanbul ignore next */
       if (groupName === Lexer.SKIPPED) {
         return undefined
-      } else if (isString(groupName)) {
+      } else if (typeof groupName === "string") {
         return groupName
-      } else if (isUndefined(groupName)) {
+      } else if (groupName === undefined) {
         return false
       } else {
         throw Error("non exhaustive match")
@@ -253,7 +249,7 @@ export function analyzeTokenTypes(
     emptyGroups = onlyRelevantTypes.reduce(
       (acc, clazz: any) => {
         const groupName = clazz.GROUP
-        if (isString(groupName) && !(groupName === Lexer.SKIPPED)) {
+        if (typeof groupName === "string" && !(groupName === Lexer.SKIPPED)) {
           acc[groupName] = []
         }
         return acc
@@ -450,10 +446,10 @@ export function findInvalidPatterns(
   const tokenTypesWithInvalidPattern = tokenTypes.filter((currType) => {
     const pattern = currType[PATTERN]
     return (
-      !isRegExp(pattern) &&
-      !isFunction(pattern) &&
-      !has(pattern, "exec") &&
-      !isString(pattern)
+      !(pattern instanceof RegExp) &&
+      !(typeof pattern === "function") &&
+      !Object.prototype.hasOwnProperty.call(pattern, "exec") &&
+      !(typeof pattern === "string")
     )
   })
 
@@ -668,7 +664,7 @@ export function findInvalidGroupType(
     }
     const group = clazz.GROUP
 
-    return group !== Lexer.SKIPPED && group !== Lexer.NA && !isString(group)
+    return group !== Lexer.SKIPPED && group !== Lexer.NA && typeof group !== "string"
   })
 
   const errors = invalidTypes.map((currType) => {
@@ -724,7 +720,7 @@ export function findUnreachablePatterns(
 
       // a more comprehensive validation for all forms of regExps would require
       // deeper regExp analysis capabilities
-      if (isString(pattern)) {
+      if (typeof pattern === "string") {
         result.push({ str: pattern, idx, tokenType: tokType })
       } else if (isRegExp(pattern) && noMetaChar(pattern)) {
         result.push({ str: pattern.source, idx, tokenType: tokType })
@@ -759,7 +755,7 @@ function testTokenType(str: string, pattern: any): boolean {
   if (isRegExp(pattern)) {
     const regExpArray = pattern.exec(str)
     return regExpArray !== null && regExpArray.index === 0
-  } else if (isFunction(pattern)) {
+  } else if (typeof pattern === "function") {
     // maintain the API of custom patterns
     return pattern(str, 0, [], {})
   } else if (has(pattern, "exec")) {
@@ -854,7 +850,7 @@ export function performRuntimeChecks(
       // Make currModeValue a non-sparse array
       currModeValue = Array.from(currModeValue)
       currModeValue.forEach((currTokType, currIdx) => {
-        if (isUndefined(currTokType)) {
+        if (currTokType === undefined) {
           errors.push({
             message:
               `A Lexer cannot be initialized using an undefined Token Type. Mode:` +
@@ -965,13 +961,13 @@ export function isCustomPattern(tokenType: TokenType): boolean {
   /* istanbul ignore else */
   if (isRegExp(pattern)) {
     return false
-  } else if (isFunction(pattern)) {
+  } else if (typeof pattern === "function") {
     // CustomPatternMatcherFunc - custom patterns do not require any transformations, only wrapping in a RegExp Like object
     return true
-  } else if (has(pattern, "exec")) {
+  } else if (Object.prototype.hasOwnProperty.call(pattern, "exec")) {
     // ICustomPattern
     return true
-  } else if (isString(pattern)) {
+  } else if (typeof pattern === "string") {
     return false
   } else {
     throw Error("non exhaustive match")
@@ -979,7 +975,7 @@ export function isCustomPattern(tokenType: TokenType): boolean {
 }
 
 export function isShortPattern(pattern: any): number | false {
-  if (isString(pattern) && pattern.length === 1) {
+  if (typeof pattern === "string" && pattern.length === 1) {
     return pattern.charCodeAt(0)
   } else {
     return false
@@ -1042,7 +1038,7 @@ function checkLineBreaksIssues(
         }
       }
       return false
-    } else if (isString(tokType.PATTERN)) {
+    } else if (typeof tokType.PATTERN === "string") {
       // string literal patterns can always be analyzed to detect line terminator usage
       return false
     } else if (isCustomPattern(tokType)) {
@@ -1084,7 +1080,7 @@ export function buildLineBreakIssueMessage(
 
 function getCharCodes(charsOrCodes: (number | string)[]): number[] {
   const charCodes = charsOrCodes.map((numOrString) => {
-    if (isString(numOrString)) {
+    if (typeof numOrString === "string") {
       return numOrString.charCodeAt(0)
     } else {
       return numOrString
