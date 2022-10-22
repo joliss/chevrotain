@@ -1,7 +1,4 @@
 import { IToken, TokenType } from "@chevrotain/types"
-import compact from "lodash/compact"
-import flatten from "lodash/flatten"
-import map from "lodash/map"
 
 export function tokenStructuredMatcher(
   tokInstance: IToken,
