@@ -133,23 +133,23 @@ export function singleAssignCategoriesToksMap(
 }
 
 export function hasShortKeyProperty(tokType: TokenType): boolean {
-  return tokType != null && tokType.hasOwnProperty("tokenTypeIdx")
+  return tokType !== null && tokType.hasOwnProperty("tokenTypeIdx")
 }
 
 export function hasCategoriesProperty(tokType: TokenType): boolean {
-  return tokType != null && tokType.hasOwnProperty("CATEGORIES")
+  return tokType !== null && tokType.hasOwnProperty("CATEGORIES")
 }
 
 export function hasExtendingTokensTypesProperty(tokType: TokenType): boolean {
-  return tokType != null && tokType.hasOwnProperty("categoryMatches")
+  return tokType !== null && tokType.hasOwnProperty("categoryMatches")
 }
 
 export function hasExtendingTokensTypesMapProperty(
   tokType: TokenType
 ): boolean {
-  return tokType != null && tokType.hasOwnProperty("categoryMatchesMap")
+  return tokType !== null && tokType.hasOwnProperty("categoryMatchesMap")
 }
 
 export function isTokenType(tokType: TokenType): boolean {
-  return tokType != null && tokType.hasOwnProperty("tokenTypeIdx")
+  return tokType !== null && tokType.hasOwnProperty("tokenTypeIdx")
 }
