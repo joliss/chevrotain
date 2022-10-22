@@ -1,4 +1,3 @@
-import pickBy from "lodash/pickBy"
 import {
   IGASTVisitor,
   IProduction,
@@ -61,7 +60,7 @@ export class NonTerminal
     super([])
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 
@@ -94,7 +93,7 @@ export class Rule extends AbstractProduction {
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -109,7 +108,7 @@ export class Alternative extends AbstractProduction {
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -129,7 +128,7 @@ export class Option
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -149,7 +148,7 @@ export class RepetitionMandatory
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -170,7 +169,7 @@ export class RepetitionMandatoryWithSeparator
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -191,7 +190,7 @@ export class Repetition
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -212,7 +211,7 @@ export class RepetitionWithSeparator
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -243,7 +242,7 @@ export class Alternation
     super(options.definition)
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 }
@@ -260,7 +259,7 @@ export class Terminal implements IProductionWithOccurrence {
   }) {
     Object.assign(
       this,
-      pickBy(options, (v) => v !== undefined)
+      options
     )
   }
 
