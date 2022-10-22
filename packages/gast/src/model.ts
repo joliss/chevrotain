@@ -1,9 +1,4 @@
-import map from "lodash/map"
-import forEach from "lodash/forEach"
-import isString from "lodash/isString"
-import isRegExp from "lodash/isRegExp"
 import pickBy from "lodash/pickBy"
-import assign from "lodash/assign"
 import {
   IGASTVisitor,
   IProduction,
@@ -25,7 +20,7 @@ function tokenLabel(tokType: TokenType): string {
 function hasTokenLabel(
   obj: TokenType
 ): obj is TokenType & Pick<Required<TokenType>, "LABEL"> {
-  return isString(obj.LABEL) && obj.LABEL !== ""
+  return typeof obj.LABEL === "string" && obj.LABEL !== ""
 }
 
 export abstract class AbstractProduction<T extends IProduction = IProduction>
@@ -42,7 +37,7 @@ export abstract class AbstractProduction<T extends IProduction = IProduction>
 
   accept(visitor: IGASTVisitor): void {
     visitor.visit(this)
-    forEach(this.definition, (prod) => {
+    this.definition.forEach((prod) => {
       prod.accept(visitor)
     })
   }
@@ -64,7 +59,7 @@ export class NonTerminal
     idx?: number
   }) {
     super([])
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -97,7 +92,7 @@ export class Rule extends AbstractProduction {
     orgText?: string
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -112,7 +107,7 @@ export class Alternative extends AbstractProduction {
     ignoreAmbiguities?: boolean
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -132,7 +127,7 @@ export class Option
     maxLookahead?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -152,7 +147,7 @@ export class RepetitionMandatory
     maxLookahead?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -173,7 +168,7 @@ export class RepetitionMandatoryWithSeparator
     idx?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -194,7 +189,7 @@ export class Repetition
     maxLookahead?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -215,7 +210,7 @@ export class RepetitionWithSeparator
     idx?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -246,7 +241,7 @@ export class Alternation
     maxLookahead?: number
   }) {
     super(options.definition)
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -263,7 +258,7 @@ export class Terminal implements IProductionWithOccurrence {
     label?: string
     idx?: number
   }) {
-    assign(
+    Object.assign(
       this,
       pickBy(options, (v) => v !== undefined)
     )
@@ -320,12 +315,12 @@ export type ISerializedGastAny =
   | ISerializedTerminalWithSeparator
 
 export function serializeGrammar(topRules: Rule[]): ISerializedGast[] {
-  return map(topRules, serializeProduction)
+  return topRules.map(serializeProduction)
 }
 
 export function serializeProduction(node: IProduction): ISerializedGast {
   function convertDefinition(definition: IProduction[]): ISerializedGast[] {
-    return map(definition, serializeProduction)
+    return definition.map(serializeProduction)
   }
   /* istanbul ignore else */
   if (node instanceof NonTerminal) {
@@ -335,7 +330,7 @@ export function serializeProduction(node: IProduction): ISerializedGast {
       idx: node.idx
     }
 
-    if (isString(node.label)) {
+    if (typeof node.label === "string") {
       serializedNonTerminal.label = node.label
     }
 
@@ -395,13 +390,13 @@ export function serializeProduction(node: IProduction): ISerializedGast {
       idx: node.idx
     }
 
-    if (isString(node.label)) {
+    if (typeof node.label === "string") {
       serializedTerminal.terminalLabel = node.label
     }
 
     const pattern = node.terminalType.PATTERN
     if (node.terminalType.PATTERN) {
-      serializedTerminal.pattern = isRegExp(pattern)
+      serializedTerminal.pattern = pattern instanceof RegExp
         ? (<any>pattern).source
         : pattern
     }
