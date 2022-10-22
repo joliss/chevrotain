@@ -107,16 +107,12 @@ function validateDuplicateProductions(
   topLevelRule.accept(collectorVisitor)
   const allRuleProductions = collectorVisitor.allProductions
 
-  const productionsById = new Map<string, IProductionWithOccurrence[]>()
+  const productionsById: Record<string, IProductionWithOccurrence[]> = {}
   allRuleProductions.forEach((currProd) => {
-    const id = identifyProductionForDuplicates(currProd)
-    if (!productionsById.has(id)) {
-      productionsById.set(id, [])
-    }
-    productionsById.get(id)!.push(currProd)
+    (productionsById[identifyProductionForDuplicates(currProd)] ??= []).push(currProd)
   })
 
-  const duplicates = Array.from(productionsById.values()).filter(
+  const duplicates = Object.values(productionsById).filter(
     (prods) => prods.length > 1
   )
 
