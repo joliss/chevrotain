@@ -4,7 +4,6 @@ import flatten from "lodash/flatten"
 import difference from "lodash/difference"
 import has from "lodash/has"
 import keys from "lodash/keys"
-import isRegExp from "lodash/isRegExp"
 import defaults from "lodash/defaults"
 import { PRINT_ERROR } from "@chevrotain/utils"
 import {
@@ -100,7 +99,7 @@ export function analyzeTokenTypes(
         const currPattern = currType[PATTERN]
 
         /* istanbul ignore else */
-        if (isRegExp(currPattern)) {
+        if (currPattern instanceof RegExp) {
           const regExpSource = currPattern.source
           if (
             regExpSource.length === 1 &&
@@ -308,7 +307,7 @@ export function analyzeTokenTypes(
                 )
               }
             })
-          } else if (isRegExp(currTokType.PATTERN)) {
+          } else if (currTokType.PATTERN instanceof RegExp) {
             if (currTokType.PATTERN.unicode) {
               canBeOptimized = false
               if (options.ensureOptimizations) {
@@ -397,7 +396,7 @@ function validateRegExpPattern(
 ): ILexerDefinitionError[] {
   let errors: ILexerDefinitionError[] = []
   const withRegExpPatterns = tokenTypes.filter((currTokType) =>
-    isRegExp(currTokType[PATTERN])
+    currTokType[PATTERN] instanceof RegExp
   )
 
   errors = errors.concat(findEndOfInputAnchor(withRegExpPatterns))
@@ -722,7 +721,7 @@ export function findUnreachablePatterns(
       // deeper regExp analysis capabilities
       if (typeof pattern === "string") {
         result.push({ str: pattern, idx, tokenType: tokType })
-      } else if (isRegExp(pattern) && noMetaChar(pattern)) {
+      } else if (pattern instanceof RegExp && noMetaChar(pattern)) {
         result.push({ str: pattern.source, idx, tokenType: tokType })
       }
       return result
@@ -752,7 +751,7 @@ export function findUnreachablePatterns(
 
 function testTokenType(str: string, pattern: any): boolean {
   /* istanbul ignore else */
-  if (isRegExp(pattern)) {
+  if (pattern instanceof RegExp) {
     const regExpArray = pattern.exec(str)
     return regExpArray !== null && regExpArray.index === 0
   } else if (typeof pattern === "function") {
@@ -959,7 +958,7 @@ export function cloneEmptyGroups(emptyGroups: {
 export function isCustomPattern(tokenType: TokenType): boolean {
   const pattern = tokenType.PATTERN
   /* istanbul ignore else */
-  if (isRegExp(pattern)) {
+  if (pattern instanceof RegExp) {
     return false
   } else if (typeof pattern === "function") {
     // CustomPatternMatcherFunc - custom patterns do not require any transformations, only wrapping in a RegExp Like object
@@ -1026,7 +1025,7 @@ function checkLineBreaksIssues(
     return false
   } else {
     /* istanbul ignore else */
-    if (isRegExp(tokType.PATTERN)) {
+    if (tokType.PATTERN instanceof RegExp) {
       try {
         // TODO: why is the casting suddenly needed?
         canMatchCharCode(lineTerminatorCharCodes, tokType.PATTERN as RegExp)
