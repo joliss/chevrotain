@@ -851,7 +851,9 @@ export function performRuntimeChecks(
 
   if (has(lexerDefinition, MODES)) {
     Object.entries(lexerDefinition.modes).forEach(([currModeName, currModeValue]) => {
-      forEach(currModeValue, (currTokType, currIdx) => {
+      // Make currModeValue a non-sparse array
+      currModeValue = Array.from(currModeValue)
+      currModeValue.forEach((currTokType, currIdx) => {
         if (isUndefined(currTokType)) {
           errors.push({
             message:
