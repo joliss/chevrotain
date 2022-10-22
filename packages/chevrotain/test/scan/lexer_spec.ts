@@ -1,4 +1,3 @@
-import last from "lodash/last"
 import map from "lodash/map"
 import forEach from "lodash/forEach"
 import isRegExp from "lodash/isRegExp"
@@ -766,14 +765,14 @@ function defineLexerSpecs(
             pattern: /\d+/
           })
         ])
-        const lastToken = last(ltCounter.tokenize("1\r\n1\r1").tokens)!
+        const lastToken = ltCounter.tokenize("1\r\n1\r1").tokens.pop()!
         expect(lastToken.startLine).to.equal(3)
 
-        const lastToken2 = last(ltCounter.tokenize("\r\r\r1234\r\n1").tokens)!
+        const lastToken2 = ltCounter.tokenize("\r\r\r1234\r\n1").tokens.pop()!
         expect(lastToken2.startLine).to.equal(5)
         expect(lastToken2.startColumn).to.equal(1)
 
-        const lastToken3 = last(ltCounter.tokenize("2\r3\n\r4\n5").tokens)!
+        const lastToken3 = ltCounter.tokenize("2\r3\n\r4\n5").tokens.pop()!
         expect(lastToken3.startLine).to.equal(5)
       })
 
@@ -789,14 +788,14 @@ function defineLexerSpecs(
             pattern: /\d+(?=|\n)/
           })
         ])
-        const lastToken = last(ltCounter.tokenize("1\r\n1\r1").tokens)!
+        const lastToken = ltCounter.tokenize("1\r\n1\r1").tokens.pop()!
         expect(lastToken.startLine).to.equal(3)
 
-        const lastToken2 = last(ltCounter.tokenize("\r\r\r1234\r\n1").tokens)!
+        const lastToken2 = ltCounter.tokenize("\r\r\r1234\r\n1").tokens.pop()!
         expect(lastToken2.startLine).to.equal(5)
         expect(lastToken2.startColumn).to.equal(1)
 
-        const lastToken3 = last(ltCounter.tokenize("2\r3\n\r4\n5").tokens)!
+        const lastToken3 = ltCounter.tokenize("2\r3\n\r4\n5").tokens.pop()!
         expect(lastToken3.startLine).to.equal(5)
       })
 
@@ -813,14 +812,14 @@ function defineLexerSpecs(
             pattern: /\d+(?!a\n)/
           })
         ])
-        const lastToken = last(ltCounter.tokenize("1\r\n1\r1").tokens)!
+        const lastToken = ltCounter.tokenize("1\r\n1\r1").tokens.pop()!
         expect(lastToken.startLine).to.equal(3)
 
-        const lastToken2 = last(ltCounter.tokenize("\r\r\r1234\r\n1").tokens)!
+        const lastToken2 = ltCounter.tokenize("\r\r\r1234\r\n1").tokens.pop()!
         expect(lastToken2.startLine).to.equal(5)
         expect(lastToken2.startColumn).to.equal(1)
 
-        const lastToken3 = last(ltCounter.tokenize("2\r3\n\r4\n5").tokens)!
+        const lastToken3 = ltCounter.tokenize("2\r3\n\r4\n5").tokens.pop()!
         expect(lastToken3.startLine).to.equal(5)
       })
 
@@ -836,7 +835,7 @@ function defineLexerSpecs(
             pattern: /\d+/
           })
         ])
-        const lastToken = last(ltCounter.tokenize("1\n1\n1").tokens)!
+        const lastToken = ltCounter.tokenize("1\n1\n1").tokens.pop()!
         expect(lastToken.startLine).to.equal(3)
       })
 
@@ -851,7 +850,7 @@ function defineLexerSpecs(
             pattern: /\d+/
           })
         ])
-        const lastToken = last(ltCounter.tokenize("1\n1\n1").tokens)!
+        const lastToken = ltCounter.tokenize("1\n1\n1").tokens.pop()!
         expect(lastToken.startLine).to.equal(3)
       })
 
@@ -1110,7 +1109,7 @@ function defineLexerSpecs(
               pattern: /\d+/
             })
           ])
-          const lastToken = last(ltCounter.tokenize("1\n1\n1").tokens)!
+          const lastToken = ltCounter.tokenize("1\n1\n1").tokens.pop()!
           expect(lastToken.startLine).to.equal(3)
         })
 
