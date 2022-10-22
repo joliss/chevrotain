@@ -44,8 +44,6 @@ import {
   StringTok,
   SwitchTok
 } from "./switchcase_recovery_tokens"
-import assign from "lodash/assign"
-import includes from "lodash/includes"
 import { IToken, TokenType } from "@chevrotain/types"
 
 export interface RetType {
@@ -83,10 +81,7 @@ export class SwitchCaseRecoveryParser extends EmbeddedActionsParser {
   // DOCS: overriding this method allows us to customize the logic for which tokens may not be automatically inserted
   // during error recovery.
   public canTokenTypeBeInsertedInRecovery(tokType: TokenType) {
-    return !includes(
-      this.tokTypesThatCannotBeInsertedInRecovery,
-      tokType as unknown
-    )
+    return this.tokTypesThatCannotBeInsertedInRecovery.indexOf(tokType as any) === -1
   }
 
   // a property with which the single token deletion recovery can be explicitly disabled for testing purposes
@@ -112,7 +107,7 @@ export class SwitchCaseRecoveryParser extends EmbeddedActionsParser {
     this.CONSUME(LCurlyTok)
 
     this.AT_LEAST_ONE(() => {
-      assign(retObj, this.SUBRULE(this.caseStmt))
+      Object.assign(retObj, this.SUBRULE(this.caseStmt))
     })
 
     this.CONSUME(RCurlyTok)
