@@ -31,7 +31,6 @@ import { defaultGrammarValidatorErrorProvider } from "../../../src/parse/errors_
 import { IToken, TokenType } from "@chevrotain/types"
 import { expect } from "chai"
 import { createDeferredTokenBuilder } from "../../utils/builders"
-import omit from "lodash/omit"
 
 const getIdentTok = createDeferredTokenBuilder({
   name: "IdentTok",
