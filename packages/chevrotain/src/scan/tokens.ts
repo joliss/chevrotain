@@ -136,23 +136,23 @@ export function singleAssignCategoriesToksMap(
 }
 
 export function hasShortKeyProperty(tokType: TokenType): boolean {
-  return Object.prototype.hasOwnProperty.call(tokType, "tokenTypeIdx")
+  return tokType != null && Object.prototype.hasOwnProperty.call(tokType, "tokenTypeIdx")
 }
 
 export function hasCategoriesProperty(tokType: TokenType): boolean {
-  return Object.prototype.hasOwnProperty.call(tokType, "CATEGORIES")
+  return tokType != null && Object.prototype.hasOwnProperty.call(tokType, "CATEGORIES")
 }
 
 export function hasExtendingTokensTypesProperty(tokType: TokenType): boolean {
-  return Object.prototype.hasOwnProperty.call(tokType, "categoryMatches")
+  return tokType != null && Object.prototype.hasOwnProperty.call(tokType, "categoryMatches")
 }
 
 export function hasExtendingTokensTypesMapProperty(
   tokType: TokenType
 ): boolean {
-  return Object.prototype.hasOwnProperty.call(tokType, "categoryMatchesMap")
+  return tokType != null && Object.prototype.hasOwnProperty.call(tokType, "categoryMatchesMap")
 }
 
 export function isTokenType(tokType: TokenType): boolean {
-  return Object.prototype.hasOwnProperty.call(tokType, "tokenTypeIdx")
+  return tokType != null && Object.prototype.hasOwnProperty.call(tokType, "tokenTypeIdx")
 }
