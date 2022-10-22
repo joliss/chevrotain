@@ -444,7 +444,7 @@ export function findInvalidPatterns(
     return (
       !(pattern instanceof RegExp) &&
       !(typeof pattern === "function") &&
-      !Object.prototype.hasOwnProperty.call(pattern, "exec") &&
+      !pattern?.hasOwnProperty("exec") &&
       !(typeof pattern === "string")
     )
   })
@@ -756,7 +756,7 @@ function testTokenType(str: string, pattern: any): boolean {
   } else if (typeof pattern === "function") {
     // maintain the API of custom patterns
     return pattern(str, 0, [], {})
-  } else if (Object.prototype.hasOwnProperty.call(pattern, "exec")) {
+  } else if (pattern?.hasOwnProperty("exec")) {
     // maintain the API of custom patterns
     return pattern.exec(str, 0, [], {})
   } else if (typeof pattern === "string") {
@@ -960,7 +960,7 @@ export function isCustomPattern(tokenType: TokenType): boolean {
   } else if (typeof pattern === "function") {
     // CustomPatternMatcherFunc - custom patterns do not require any transformations, only wrapping in a RegExp Like object
     return true
-  } else if (Object.prototype.hasOwnProperty.call(pattern, "exec")) {
+  } else if (pattern?.hasOwnProperty("exec")) {
     // ICustomPattern
     return true
   } else if (typeof pattern === "string") {
