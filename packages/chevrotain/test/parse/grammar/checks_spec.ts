@@ -135,7 +135,7 @@ describe("the grammar validations", () => {
       defaultGrammarValidatorErrorProvider,
       "bamba"
     )
-    expect(actualErrors.map((e) => omit(e, "message"))).to.deep.equal(
+    expect(actualErrors.map(({ message, ...e }) => e)).to.deep.equal(
       expectedErrorsNoMsg
     )
   })
