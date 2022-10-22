@@ -1,6 +1,5 @@
 import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
-import has from "lodash/has"
 import { PRINT_ERROR } from "@chevrotain/utils"
 import {
   canMatchCharCode,
@@ -206,7 +205,7 @@ export function analyzeTokenTypes(
     )
 
     patternIdxToPopMode = onlyRelevantTypes.map((clazz: any) =>
-      has(clazz, "POP_MODE")
+      clazz.hasOwnProperty("POP_MODE")
     )
   })
 
@@ -218,7 +217,7 @@ export function analyzeTokenTypes(
     patternIdxToCanLineTerminator = onlyRelevantTypes.map((tokType) => false)
     if (options.positionTracking !== "onlyOffset") {
       patternIdxToCanLineTerminator = onlyRelevantTypes.map((tokType) => {
-        if (has(tokType, "LINE_BREAKS")) {
+        if (tokType.hasOwnProperty("LINE_BREAKS")) {
           return !!tokType.LINE_BREAKS
         } else {
           return (
@@ -417,7 +416,7 @@ export function findMissingPatterns(
   tokenTypes: TokenType[]
 ): ILexerFilterResult {
   const tokenTypesWithMissingPattern = tokenTypes.filter((currType) => {
-    return !has(currType, PATTERN)
+    return !currType.hasOwnProperty(PATTERN)
   })
 
   const errors = tokenTypesWithMissingPattern.map((currType) => {
@@ -658,7 +657,7 @@ export function findInvalidGroupType(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
   const invalidTypes = tokenTypes.filter((clazz: any) => {
-    if (!has(clazz, "GROUP")) {
+    if (!clazz.hasOwnProperty("GROUP")) {
       return false
     }
     const group = clazz.GROUP
@@ -757,7 +756,7 @@ function testTokenType(str: string, pattern: any): boolean {
   } else if (typeof pattern === "function") {
     // maintain the API of custom patterns
     return pattern(str, 0, [], {})
-  } else if (has(pattern, "exec")) {
+  } else if (Object.prototype.hasOwnProperty.call(pattern, "exec")) {
     // maintain the API of custom patterns
     return pattern.exec(str, 0, [], {})
   } else if (typeof pattern === "string") {
@@ -812,7 +811,7 @@ export function performRuntimeChecks(
   const errors: ILexerDefinitionError[] = []
 
   // some run time checks to help the end users.
-  if (!has(lexerDefinition, DEFAULT_MODE)) {
+  if (!lexerDefinition.hasOwnProperty(DEFAULT_MODE)) {
     errors.push({
       message:
         "A MultiMode Lexer cannot be initialized without a <" +
@@ -821,7 +820,7 @@ export function performRuntimeChecks(
       type: LexerDefinitionErrorType.MULTI_MODE_LEXER_WITHOUT_DEFAULT_MODE
     })
   }
-  if (!has(lexerDefinition, MODES)) {
+  if (!lexerDefinition.hasOwnProperty(MODES)) {
     errors.push({
       message:
         "A MultiMode Lexer cannot be initialized without a <" +
@@ -832,9 +831,9 @@ export function performRuntimeChecks(
   }
 
   if (
-    has(lexerDefinition, MODES) &&
-    has(lexerDefinition, DEFAULT_MODE) &&
-    !has(lexerDefinition.modes, lexerDefinition.defaultMode)
+    lexerDefinition.hasOwnProperty(MODES) &&
+    lexerDefinition.hasOwnProperty(DEFAULT_MODE) &&
+    !lexerDefinition.modes.hasOwnProperty(lexerDefinition.defaultMode)
   ) {
     errors.push({
       message:
@@ -844,7 +843,7 @@ export function performRuntimeChecks(
     })
   }
 
-  if (has(lexerDefinition, MODES)) {
+  if (lexerDefinition.hasOwnProperty(MODES)) {
     Object.entries(lexerDefinition.modes).forEach(([currModeName, currModeValue]) => {
       // Make currModeValue a non-sparse array
       currModeValue = Array.from(currModeValue)
@@ -856,7 +855,7 @@ export function performRuntimeChecks(
               `<${currModeName}> at index: <${currIdx}>\n`,
             type: LexerDefinitionErrorType.LEXER_DEFINITION_CANNOT_CONTAIN_UNDEFINED
           })
-        } else if (has(currTokType, "LONGER_ALT")) {
+        } else if (currTokType.hasOwnProperty("LONGER_ALT")) {
           const longerAlt = Array.isArray(currTokType.LONGER_ALT)
             ? currTokType.LONGER_ALT
             : [currTokType.LONGER_ALT]
@@ -906,7 +905,7 @@ export function performWarningRuntimeChecks(
         warnings.push(warningDescriptor)
       } else {
         // we don't want to attempt to scan if the user explicitly specified the line_breaks option.
-        if (has(tokType, "LINE_BREAKS")) {
+        if (tokType.hasOwnProperty("LINE_BREAKS")) {
           if (tokType.LINE_BREAKS === true) {
             hasAnyLineBreak = true
           }
@@ -1020,7 +1019,7 @@ function checkLineBreaksIssues(
       errMsg?: string
     }
   | false {
-  if (has(tokType, "LINE_BREAKS")) {
+  if (tokType.hasOwnProperty("LINE_BREAKS")) {
     // if the user explicitly declared the line_breaks option we will respect their choice
     // and assume it is correct.
     return false
