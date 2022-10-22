@@ -1,23 +1,14 @@
 import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
 import flatten from "lodash/flatten"
-import reject from "lodash/reject"
 import difference from "lodash/difference"
-import indexOf from "lodash/indexOf"
-import values from "lodash/values"
-import map from "lodash/map"
-import forEach from "lodash/forEach"
 import isString from "lodash/isString"
 import isFunction from "lodash/isFunction"
 import isUndefined from "lodash/isUndefined"
-import find from "lodash/find"
 import has from "lodash/has"
 import keys from "lodash/keys"
 import isRegExp from "lodash/isRegExp"
-import filter from "lodash/filter"
 import defaults from "lodash/defaults"
-import reduce from "lodash/reduce"
-import includes from "lodash/includes"
 import { PRINT_ERROR } from "@chevrotain/utils"
 import {
   canMatchCharCode,
@@ -98,8 +89,8 @@ export function analyzeTokenTypes(
 
   let onlyRelevantTypes: TokenType[]
   tracer("Reject Lexer.NA", () => {
-    onlyRelevantTypes = reject(tokenTypes, (currType) => {
-      return currType[PATTERN] === Lexer.NA
+    onlyRelevantTypes = tokenTypes.filter((currType) => {
+      return currType[PATTERN] !== Lexer.NA
     })
   })
 
@@ -107,8 +98,7 @@ export function analyzeTokenTypes(
   let allTransformedPatterns: (IRegExpExec | string)[]
   tracer("Transform Patterns", () => {
     hasCustom = false
-    allTransformedPatterns = map(
-      onlyRelevantTypes,
+    allTransformedPatterns = onlyRelevantTypes.map(
       (currType): IRegExpExec | string => {
         const currPattern = currType[PATTERN]
 
@@ -128,27 +118,24 @@ export function analyzeTokenTypes(
             regExpSource.length === 2 &&
             regExpSource[0] === "\\" &&
             // not a meta character
-            !includes(
-              [
-                "d",
-                "D",
-                "s",
-                "S",
-                "t",
-                "r",
-                "n",
-                "t",
-                "0",
-                "c",
-                "b",
-                "B",
-                "f",
-                "v",
-                "w",
-                "W"
-              ],
-              regExpSource[1]
-            )
+            [
+              "d",
+              "D",
+              "s",
+              "S",
+              "t",
+              "r",
+              "n",
+              "t",
+              "0",
+              "c",
+              "b",
+              "B",
+              "f",
+              "v",
+              "w",
+              "W"
+            ].indexOf(regExpSource[1]) === -1
           ) {
             // escaped meta Characters: /\+/ /\[/
             // or redundant escaping: /\a/
@@ -193,12 +180,11 @@ export function analyzeTokenTypes(
   let patternIdxToPushMode: (string | undefined)[]
   let patternIdxToPopMode: boolean[]
   tracer("misc mapping", () => {
-    patternIdxToType = map(
-      onlyRelevantTypes,
+    patternIdxToType = onlyRelevantTypes.map(
       (currType) => currType.tokenTypeIdx!
     )
 
-    patternIdxToGroup = map(onlyRelevantTypes, (clazz: any) => {
+    patternIdxToGroup = onlyRelevantTypes.map((clazz: any) => {
       const groupName = clazz.GROUP
       /* istanbul ignore next */
       if (groupName === Lexer.SKIPPED) {
@@ -212,23 +198,22 @@ export function analyzeTokenTypes(
       }
     })
 
-    patternIdxToLongerAltIdxArr = map(onlyRelevantTypes, (clazz: any) => {
+    patternIdxToLongerAltIdxArr = onlyRelevantTypes.map((clazz: any) => {
       const longerAltType = clazz.LONGER_ALT
 
       if (longerAltType) {
         const longerAltIdxArr = Array.isArray(longerAltType)
-          ? map(longerAltType, (type: any) => indexOf(onlyRelevantTypes, type))
-          : [indexOf(onlyRelevantTypes, longerAltType)]
+          ? longerAltType.map((type: any) => onlyRelevantTypes.indexOf(type))
+          : [onlyRelevantTypes.indexOf(longerAltType)]
         return longerAltIdxArr
       }
     })
 
-    patternIdxToPushMode = map(
-      onlyRelevantTypes,
+    patternIdxToPushMode = onlyRelevantTypes.map(
       (clazz: any) => clazz.PUSH_MODE
     )
 
-    patternIdxToPopMode = map(onlyRelevantTypes, (clazz: any) =>
+    patternIdxToPopMode = onlyRelevantTypes.map((clazz: any) =>
       has(clazz, "POP_MODE")
     )
   })
@@ -238,9 +223,9 @@ export function analyzeTokenTypes(
     const lineTerminatorCharCodes = getCharCodes(
       options.lineTerminatorCharacters!
     )
-    patternIdxToCanLineTerminator = map(onlyRelevantTypes, (tokType) => false)
+    patternIdxToCanLineTerminator = onlyRelevantTypes.map((tokType) => false)
     if (options.positionTracking !== "onlyOffset") {
-      patternIdxToCanLineTerminator = map(onlyRelevantTypes, (tokType) => {
+      patternIdxToCanLineTerminator = onlyRelevantTypes.map((tokType) => {
         if (has(tokType, "LINE_BREAKS")) {
           return !!tokType.LINE_BREAKS
         } else {
@@ -261,11 +246,10 @@ export function analyzeTokenTypes(
   let emptyGroups!: { [groupName: string]: IToken[] }
   let patternIdxToConfig!: IPatternConfig[]
   tracer("Misc Mapping #2", () => {
-    patternIdxToIsCustom = map(onlyRelevantTypes, isCustomPattern)
-    patternIdxToShort = map(allTransformedPatterns, isShortPattern)
+    patternIdxToIsCustom = onlyRelevantTypes.map(isCustomPattern)
+    patternIdxToShort = allTransformedPatterns.map( isShortPattern)
 
-    emptyGroups = reduce(
-      onlyRelevantTypes,
+    emptyGroups = onlyRelevantTypes.reduce(
       (acc, clazz: any) => {
         const groupName = clazz.GROUP
         if (isString(groupName) && !(groupName === Lexer.SKIPPED)) {
@@ -276,8 +260,7 @@ export function analyzeTokenTypes(
       {} as { [groupName: string]: IToken[] }
     )
 
-    patternIdxToConfig = map(
-      allTransformedPatterns,
+    patternIdxToConfig = allTransformedPatterns.map(
       (x, idx): IPatternConfig => {
         return {
           pattern: allTransformedPatterns[idx],
@@ -301,8 +284,7 @@ export function analyzeTokenTypes(
 
   if (!options.safeMode) {
     tracer("First Char Optimization", () => {
-      charCodeToPatternIdxToConfig = reduce(
-        onlyRelevantTypes,
+      charCodeToPatternIdxToConfig = onlyRelevantTypes.reduce(
         (result, currTokType, idx) => {
           if (typeof currTokType.PATTERN === "string") {
             const charCode = currTokType.PATTERN.charCodeAt(0)
@@ -310,7 +292,7 @@ export function analyzeTokenTypes(
             addToMapOfArrays(result, optimizedIdx, patternIdxToConfig[idx])
           } else if (Array.isArray(currTokType.START_CHARS_HINT)) {
             let lastOptimizedIdx: number
-            forEach(currTokType.START_CHARS_HINT, (charOrInt) => {
+            currTokType.START_CHARS_HINT.forEach((charOrInt) => {
               const charCode =
                 typeof charOrInt === "string"
                   ? charOrInt.charCodeAt(0)
@@ -355,7 +337,7 @@ export function analyzeTokenTypes(
                 // Not actually sure this is an error, no debug message
                 canBeOptimized = false
               }
-              forEach(optimizedCodes, (code) => {
+              optimizedCodes.forEach((code) => {
                 addToMapOfArrays(result, code, patternIdxToConfig[idx])
               })
             }
@@ -417,7 +399,7 @@ function validateRegExpPattern(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
   let errors: ILexerDefinitionError[] = []
-  const withRegExpPatterns = filter(tokenTypes, (currTokType) =>
+  const withRegExpPatterns = tokenTypes.filter((currTokType) =>
     isRegExp(currTokType[PATTERN])
   )
 
@@ -442,11 +424,11 @@ export interface ILexerFilterResult {
 export function findMissingPatterns(
   tokenTypes: TokenType[]
 ): ILexerFilterResult {
-  const tokenTypesWithMissingPattern = filter(tokenTypes, (currType) => {
+  const tokenTypesWithMissingPattern = tokenTypes.filter((currType) => {
     return !has(currType, PATTERN)
   })
 
-  const errors = map(tokenTypesWithMissingPattern, (currType) => {
+  const errors = tokenTypesWithMissingPattern.map((currType) => {
     return {
       message:
         "Token Type: ->" +
@@ -464,7 +446,7 @@ export function findMissingPatterns(
 export function findInvalidPatterns(
   tokenTypes: TokenType[]
 ): ILexerFilterResult {
-  const tokenTypesWithInvalidPattern = filter(tokenTypes, (currType) => {
+  const tokenTypesWithInvalidPattern = tokenTypes.filter((currType) => {
     const pattern = currType[PATTERN]
     return (
       !isRegExp(pattern) &&
@@ -474,7 +456,7 @@ export function findInvalidPatterns(
     )
   })
 
-  const errors = map(tokenTypesWithInvalidPattern, (currType) => {
+  const errors = tokenTypesWithInvalidPattern.map((currType) => {
     return {
       message:
         "Token Type: ->" +
@@ -503,7 +485,7 @@ export function findEndOfInputAnchor(
     }
   }
 
-  const invalidRegex = filter(tokenTypes, (currType) => {
+  const invalidRegex = tokenTypes.filter((currType) => {
     const pattern = currType.PATTERN
 
     try {
@@ -519,7 +501,7 @@ export function findEndOfInputAnchor(
     }
   })
 
-  const errors = map(invalidRegex, (currType) => {
+  const errors = invalidRegex.map((currType) => {
     return {
       message:
         "Unexpected RegExp Anchor Error:\n" +
@@ -539,12 +521,12 @@ export function findEndOfInputAnchor(
 export function findEmptyMatchRegExps(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
-  const matchesEmptyString = filter(tokenTypes, (currType) => {
+  const matchesEmptyString = tokenTypes.filter((currType) => {
     const pattern = currType.PATTERN as RegExp
     return pattern.test("")
   })
 
-  const errors = map(matchesEmptyString, (currType) => {
+  const errors = matchesEmptyString.map((currType) => {
     return {
       message:
         "Token Type: ->" +
@@ -571,7 +553,7 @@ export function findStartOfInputAnchor(
     }
   }
 
-  const invalidRegex = filter(tokenTypes, (currType) => {
+  const invalidRegex = tokenTypes.filter((currType) => {
     const pattern = currType.PATTERN as RegExp
     try {
       const regexpAst = getRegExpAst(pattern)
@@ -586,7 +568,7 @@ export function findStartOfInputAnchor(
     }
   })
 
-  const errors = map(invalidRegex, (currType) => {
+  const errors = invalidRegex.map((currType) => {
     return {
       message:
         "Unexpected RegExp Anchor Error:\n" +
@@ -606,12 +588,12 @@ export function findStartOfInputAnchor(
 export function findUnsupportedFlags(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
-  const invalidFlags = filter(tokenTypes, (currType) => {
+  const invalidFlags = tokenTypes.filter((currType) => {
     const pattern = currType[PATTERN]
     return pattern instanceof RegExp && (pattern.multiline || pattern.global)
   })
 
-  const errors = map(invalidFlags, (currType) => {
+  const errors = invalidFlags.map((currType) => {
     return {
       message:
         "Token Type: ->" +
@@ -630,13 +612,12 @@ export function findDuplicatePatterns(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
   const found: TokenType[] = []
-  let identicalPatterns = map(tokenTypes, (outerType: any) => {
-    return reduce(
-      tokenTypes,
+  let identicalPatterns = tokenTypes.map((outerType: any) => {
+    return tokenTypes.reduce(
       (result, innerType) => {
         if (
           outerType.PATTERN.source === (innerType.PATTERN as RegExp).source &&
-          !includes(found, innerType) &&
+          found.indexOf(innerType) === -1 &&
           innerType.PATTERN !== Lexer.NA
         ) {
           // this avoids duplicates in the result, each Token Type may only appear in one "set"
@@ -653,12 +634,12 @@ export function findDuplicatePatterns(
 
   identicalPatterns = identicalPatterns.filter((currPattern) => !!currPattern)
 
-  const duplicatePatterns = filter(identicalPatterns, (currIdenticalSet) => {
+  const duplicatePatterns = identicalPatterns.filter((currIdenticalSet) => {
     return currIdenticalSet.length > 1
   })
 
-  const errors = map(duplicatePatterns, (setOfIdentical: any) => {
-    const tokenTypeNames = map(setOfIdentical, (currType: any) => {
+  const errors = duplicatePatterns.map((setOfIdentical: any) => {
+    const tokenTypeNames = setOfIdentical.map((currType: any) => {
       return currType.name
     })
 
@@ -680,7 +661,7 @@ export function findDuplicatePatterns(
 export function findInvalidGroupType(
   tokenTypes: TokenType[]
 ): ILexerDefinitionError[] {
-  const invalidTypes = filter(tokenTypes, (clazz: any) => {
+  const invalidTypes = tokenTypes.filter((clazz: any) => {
     if (!has(clazz, "GROUP")) {
       return false
     }
@@ -689,7 +670,7 @@ export function findInvalidGroupType(
     return group !== Lexer.SKIPPED && group !== Lexer.NA && !isString(group)
   })
 
-  const errors = map(invalidTypes, (currType) => {
+  const errors = invalidTypes.map((currType) => {
     return {
       message:
         "Token Type: ->" +
@@ -707,13 +688,13 @@ export function findModesThatDoNotExist(
   tokenTypes: TokenType[],
   validModes: string[]
 ): ILexerDefinitionError[] {
-  const invalidModes = filter(tokenTypes, (clazz: any) => {
+  const invalidModes = tokenTypes.filter((clazz: any) => {
     return (
-      clazz.PUSH_MODE !== undefined && !includes(validModes, clazz.PUSH_MODE)
+      clazz.PUSH_MODE !== undefined && validModes.indexOf(clazz.PUSH_MODE) === -1
     )
   })
 
-  const errors = map(invalidModes, (tokType) => {
+  const errors = invalidModes.map((tokType) => {
     const msg =
       `Token Type: ->${tokType.name}<- static 'PUSH_MODE' value cannot refer to a Lexer Mode ->${tokType.PUSH_MODE}<-` +
       `which does not exist`
@@ -732,8 +713,7 @@ export function findUnreachablePatterns(
 ): ILexerDefinitionError[] {
   const errors: ILexerDefinitionError[] = []
 
-  const canBeTested = reduce(
-    tokenTypes,
+  const canBeTested = tokenTypes.reduce(
     (result, tokType, idx) => {
       const pattern = tokType.PATTERN
 
@@ -753,8 +733,8 @@ export function findUnreachablePatterns(
     [] as { str: string; idx: number; tokenType: TokenType }[]
   )
 
-  forEach(tokenTypes, (tokType, testIdx) => {
-    forEach(canBeTested, ({ str, idx, tokenType }) => {
+  tokenTypes.forEach((tokType, testIdx) => {
+    canBeTested.forEach(({ str, idx, tokenType }) => {
       if (testIdx < idx && testTokenType(str, tokType.PATTERN)) {
         const msg =
           `Token: ->${tokenType.name}<- can never be matched.\n` +
@@ -808,8 +788,9 @@ function noMetaChar(regExp: RegExp): boolean {
     "+",
     "{"
   ]
+  // TODO JO
   return (
-    find(metaChars, (char) => regExp.source.indexOf(char) !== -1) === undefined
+    metaChars.find((char) => regExp.source.indexOf(char) !== -1) === undefined
   )
 }
 
@@ -868,8 +849,8 @@ export function performRuntimeChecks(
   }
 
   if (has(lexerDefinition, MODES)) {
-    forEach(lexerDefinition.modes, (currModeValue, currModeName) => {
-      forEach(currModeValue, (currTokType, currIdx) => {
+    Object.entries(lexerDefinition.modes).forEach(([currModeName, currModeValue]) => {
+      currModeValue.forEach((currTokType, currIdx) => {
         if (isUndefined(currTokType)) {
           errors.push({
             message:
@@ -881,10 +862,10 @@ export function performRuntimeChecks(
           const longerAlt = Array.isArray(currTokType.LONGER_ALT)
             ? currTokType.LONGER_ALT
             : [currTokType.LONGER_ALT]
-          forEach(longerAlt, (currLongerAlt) => {
+          longerAlt.forEach((currLongerAlt) => {
             if (
-              !isUndefined(currLongerAlt) &&
-              !includes(currModeValue, currLongerAlt)
+              currLongerAlt !== undefined &&
+              currModeValue.indexOf(currLongerAlt) === -1
             ) {
               errors.push({
                 message: `A MultiMode Lexer cannot be initialized with a longer_alt <${currLongerAlt.name}> on token <${currTokType.name}> outside of mode <${currModeName}>\n`,
@@ -909,13 +890,12 @@ export function performWarningRuntimeChecks(
   let hasAnyLineBreak = false
   const allTokenTypes = flatten(Object.values(lexerDefinition.modes ?? {})).filter((tokType) => !!tokType)
 
-  const concreteTokenTypes = reject(
-    allTokenTypes,
-    (currType) => currType[PATTERN] === Lexer.NA
+  const concreteTokenTypes = allTokenTypes.filter(
+    (currType) => currType[PATTERN] !== Lexer.NA
   )
   const terminatorCharCodes = getCharCodes(lineTerminatorCharacters)
   if (trackLines) {
-    forEach(concreteTokenTypes, (tokType) => {
+    concreteTokenTypes.forEach((tokType) => {
       const currIssue = checkLineBreaksIssues(tokType, terminatorCharCodes)
       if (currIssue !== false) {
         const message = buildLineBreakIssueMessage(tokType, currIssue)
@@ -962,7 +942,7 @@ export function cloneEmptyGroups(emptyGroups: {
   const clonedResult: any = {}
   const groupKeys = keys(emptyGroups)
 
-  forEach(groupKeys, (currKey) => {
+  groupKeys.forEach((currKey) => {
     const currGroupValue = emptyGroups[currKey]
 
     /* istanbul ignore else */
@@ -1100,7 +1080,7 @@ export function buildLineBreakIssueMessage(
 }
 
 function getCharCodes(charsOrCodes: (number | string)[]): number[] {
-  const charCodes = map(charsOrCodes, (numOrString) => {
+  const charCodes = charsOrCodes.map((numOrString) => {
     if (isString(numOrString)) {
       return numOrString.charCodeAt(0)
     } else {
