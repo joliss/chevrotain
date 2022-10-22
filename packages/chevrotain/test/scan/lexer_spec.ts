@@ -1,9 +1,7 @@
 import last from "lodash/last"
 import map from "lodash/map"
 import forEach from "lodash/forEach"
-import isString from "lodash/isString"
 import isRegExp from "lodash/isRegExp"
-import keys from "lodash/keys"
 import { createToken } from "../../src/scan/tokens_public"
 import { Lexer, LexerDefinitionErrorType } from "../../src/scan/lexer_public"
 import {
@@ -670,7 +668,7 @@ function defineLexerSpecs(
 
           expect(allPatterns.length).to.equal(8)
           const allPatternsString = map(allPatterns, (pattern) => {
-            return isString(pattern) ? pattern : (pattern as RegExp).source
+            return typeof pattern === "string" ? pattern : (pattern as RegExp).source
           })
           setEquality(allPatternsString, [
             "^(?:(\\t| ))",
@@ -687,7 +685,7 @@ function defineLexerSpecs(
             analyzeResult.patternIdxToConfig,
             (currConfig) => currConfig.tokenType
           )
-          expect(keys(patternIdxToClass).length).to.equal(8)
+          expect(Object.keys(patternIdxToClass).length).to.equal(8)
           expect(patternIdxToClass[0]).to.equal(If)
           expect(patternIdxToClass[1]).to.equal(Else)
           expect(patternIdxToClass[2]).to.equal(Return)
@@ -723,7 +721,7 @@ function defineLexerSpecs(
           )
           expect(allPatterns.length).to.equal(8)
           const allPatternsString = map(allPatterns, (pattern) => {
-            return isString(pattern) ? pattern : (pattern as RegExp).source
+            return typeof pattern === "string" ? pattern : (pattern as RegExp).source
           })
           setEquality(allPatternsString, [
             "(\\t| )",
@@ -745,7 +743,7 @@ function defineLexerSpecs(
             analyzeResult.patternIdxToConfig,
             (currConfig) => currConfig.tokenType
           )
-          expect(keys(patternIdxToClass).length).to.equal(8)
+          expect(Object.keys(patternIdxToClass).length).to.equal(8)
           expect(patternIdxToClass[0]).to.equal(If)
           expect(patternIdxToClass[1]).to.equal(Else)
           expect(patternIdxToClass[2]).to.equal(Return)
