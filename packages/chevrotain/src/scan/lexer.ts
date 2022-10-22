@@ -1,11 +1,10 @@
 import { BaseRegExpVisitor } from "regexp-to-ast"
 import { IRegExpExec, Lexer, LexerDefinitionErrorType } from "./lexer_public"
-import isArray from "lodash/isArray"
-import values from "lodash/values"
 import flatten from "lodash/flatten"
 import reject from "lodash/reject"
 import difference from "lodash/difference"
 import indexOf from "lodash/indexOf"
+import values from "lodash/values"
 import map from "lodash/map"
 import forEach from "lodash/forEach"
 import isString from "lodash/isString"
@@ -217,7 +216,7 @@ export function analyzeTokenTypes(
       const longerAltType = clazz.LONGER_ALT
 
       if (longerAltType) {
-        const longerAltIdxArr = isArray(longerAltType)
+        const longerAltIdxArr = Array.isArray(longerAltType)
           ? map(longerAltType, (type: any) => indexOf(onlyRelevantTypes, type))
           : [indexOf(onlyRelevantTypes, longerAltType)]
         return longerAltIdxArr
@@ -309,7 +308,7 @@ export function analyzeTokenTypes(
             const charCode = currTokType.PATTERN.charCodeAt(0)
             const optimizedIdx = charCodeToOptimizedIndex(charCode)
             addToMapOfArrays(result, optimizedIdx, patternIdxToConfig[idx])
-          } else if (isArray(currTokType.START_CHARS_HINT)) {
+          } else if (Array.isArray(currTokType.START_CHARS_HINT)) {
             let lastOptimizedIdx: number
             forEach(currTokType.START_CHARS_HINT, (charOrInt) => {
               const charCode =
@@ -879,7 +878,7 @@ export function performRuntimeChecks(
             type: LexerDefinitionErrorType.LEXER_DEFINITION_CANNOT_CONTAIN_UNDEFINED
           })
         } else if (has(currTokType, "LONGER_ALT")) {
-          const longerAlt = isArray(currTokType.LONGER_ALT)
+          const longerAlt = Array.isArray(currTokType.LONGER_ALT)
             ? currTokType.LONGER_ALT
             : [currTokType.LONGER_ALT]
           forEach(longerAlt, (currLongerAlt) => {
@@ -908,7 +907,7 @@ export function performWarningRuntimeChecks(
 ): ILexerDefinitionError[] {
   const warnings = []
   let hasAnyLineBreak = false
-  const allTokenTypes = flatten(values(lexerDefinition.modes)).filter((tokType) => !!tokType)
+  const allTokenTypes = flatten(Object.values(lexerDefinition.modes ?? {})).filter((tokType) => !!tokType)
 
   const concreteTokenTypes = reject(
     allTokenTypes,
@@ -967,7 +966,7 @@ export function cloneEmptyGroups(emptyGroups: {
     const currGroupValue = emptyGroups[currKey]
 
     /* istanbul ignore else */
-    if (isArray(currGroupValue)) {
+    if (Array.isArray(currGroupValue)) {
       clonedResult[currKey] = []
     } else {
       throw Error("non exhaustive match")
