@@ -1,4 +1,3 @@
-import map from "lodash/map"
 import forEach from "lodash/forEach"
 import isRegExp from "lodash/isRegExp"
 import { createToken } from "../../src/scan/tokens_public"
@@ -660,13 +659,12 @@ function defineLexerSpecs(
             useSticky: false
           })
 
-          const allPatterns = map(
-            analyzeResult.patternIdxToConfig,
+          const allPatterns = analyzeResult.patternIdxToConfig.map(
             (currConfig) => currConfig.pattern
           )
 
           expect(allPatterns.length).to.equal(8)
-          const allPatternsString = map(allPatterns, (pattern) => {
+          const allPatternsString = allPatterns.map((pattern) => {
             return typeof pattern === "string" ? pattern : (pattern as RegExp).source
           })
           setEquality(allPatternsString, [
@@ -680,8 +678,7 @@ function defineLexerSpecs(
             "^(?:return)"
           ])
 
-          const patternIdxToClass = map(
-            analyzeResult.patternIdxToConfig,
+          const patternIdxToClass = analyzeResult.patternIdxToConfig.map(
             (currConfig) => currConfig.tokenType
           )
           expect(Object.keys(patternIdxToClass).length).to.equal(8)
@@ -714,12 +711,11 @@ function defineLexerSpecs(
           const analyzeResult = analyzeTokenTypes(tokenClasses, {
             useSticky: true
           })
-          const allPatterns = map(
-            analyzeResult.patternIdxToConfig,
+          const allPatterns = analyzeResult.patternIdxToConfig.map(
             (currConfig) => currConfig.pattern
           )
           expect(allPatterns.length).to.equal(8)
-          const allPatternsString = map(allPatterns, (pattern) => {
+          const allPatternsString = allPatterns.map((pattern) => {
             return typeof pattern === "string" ? pattern : (pattern as RegExp).source
           })
           setEquality(allPatternsString, [
@@ -738,8 +734,7 @@ function defineLexerSpecs(
               expect(currPattern.sticky).to.be.true
             }
           })
-          const patternIdxToClass = map(
-            analyzeResult.patternIdxToConfig,
+          const patternIdxToClass = analyzeResult.patternIdxToConfig.map(
             (currConfig) => currConfig.tokenType
           )
           expect(Object.keys(patternIdxToClass).length).to.equal(8)
@@ -1711,7 +1706,7 @@ function defineLexerSpecs(
           const lexResult = ModeLexer.tokenize(input)
           expect(lexResult.errors).to.be.empty
 
-          const images = map(lexResult.tokens, (currTok) => currTok.image)
+          const images = lexResult.tokens.map((currTok) => currTok.image)
           expect(images).to.deep.equal([
             "1",
             "LETTERS",
@@ -1741,7 +1736,7 @@ function defineLexerSpecs(
           const lexResult = ModeLexer.tokenize(input, "letters")
           expect(lexResult.errors).to.be.empty
 
-          const images = map(lexResult.tokens, (currTok) => currTok.image)
+          const images = lexResult.tokens.map((currTok) => currTok.image)
           expect(images).to.deep.equal(["A", "G", "SIGNS", "^"])
         })
 
@@ -1752,7 +1747,7 @@ function defineLexerSpecs(
           expect(lexResult.errors[0].message).to.include("skipped 1")
           expect(lexResult.errors[0].message).to.include(">1<")
 
-          const images = map(lexResult.tokens, (currTok) => currTok.image)
+          const images = lexResult.tokens.map((currTok) => currTok.image)
 
           expect(images).to.deep.equal([
             "1",
@@ -1777,7 +1772,7 @@ function defineLexerSpecs(
 
           expect(lexResult.errors[0].length).to.equal(12)
 
-          const images = map(lexResult.tokens, (currTok) => currTok.image)
+          const images = lexResult.tokens.map((currTok) => currTok.image)
           expect(images).to.deep.equal(["1", "EXIT_NUMBERS", "2"])
         })
 
@@ -1786,7 +1781,7 @@ function defineLexerSpecs(
           const lexResult = ModeLexer.tokenize(input)
           expect(lexResult.errors).to.be.empty
 
-          const images = map(lexResult.tokens, (currTok) => currTok.image)
+          const images = lexResult.tokens.map((currTok) => currTok.image)
           expect(images).to.deep.equal([
             "LETTERS",
             "SIGNS_AND_EXIT_LETTERS",
